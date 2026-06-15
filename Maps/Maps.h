@@ -14,7 +14,7 @@ void talkToNPC6();
 void renderAreaNavigation(unsigned char areaIndex, unsigned char navIndex, unsigned char *playerX, unsigned char *playerY);
 
 void showLogo();
-unsigned char enterArea();
+unsigned char enterArea(char *areaName);
 void ending();
 
 bool drawSelectMenu();
@@ -102,7 +102,7 @@ void showLogo()
                     }
                     putchar('\n');
                 }
-                if(GetAsyncKeyState (VK_LCONTROL) != 0)
+                if(GetAsyncKeyState (VK_ENTER) != 0)
                 {
                     restoreConsoleText();
                     return;
@@ -162,13 +162,13 @@ unsigned char enterArea(char *areaName)
         renderAreaNavigation(areaIndex, navIndex, &playerX, &playerY);
         putchar('\n');
 
-        renderMainPartyStats(false, "");
+        renderMainPartyStats(NAVIGATION_ACTIONS, "");
 
         moved = false;
 
         while (!moved) 
         {
-            if(GetAsyncKeyState (VK_UP) != 0)
+            if(GetAsyncKeyState (VK_W) != 0)
             {
                 playBGM("FootStep");
                 encounterChance = rand() % 100;
@@ -295,7 +295,7 @@ unsigned char enterArea(char *areaName)
                 }
             }
 
-            else if(GetAsyncKeyState (VK_DOWN) != 0)
+            else if(GetAsyncKeyState (VK_S) != 0)
             {
                 playBGM("FootStep");
                 encounterChance = rand() % 100;
@@ -335,7 +335,7 @@ unsigned char enterArea(char *areaName)
                 }
             }
 
-            else if(GetAsyncKeyState (VK_LEFT) != 0)
+            else if(GetAsyncKeyState (VK_A) != 0)
             {
                 playBGM("FootStep");
                 encounterChance = rand() % 100;
@@ -357,7 +357,7 @@ unsigned char enterArea(char *areaName)
                 limitFPS(100);
             }
 
-            else if(GetAsyncKeyState (VK_RIGHT) != 0)
+            else if(GetAsyncKeyState (VK_D) != 0)
             {
                 playBGM("FootStep");
 
@@ -376,14 +376,14 @@ unsigned char enterArea(char *areaName)
                 navIndex = navIndexTmp;
                 limitFPS(100);
             }
-            else if(GetAsyncKeyState (VK_LCONTROL) != 0)
+            else if(GetAsyncKeyState (VK_ENTER) != 0)
             {
                 playSFX("OpenMenu");
                 moved = true;
                 openInventory();
             }
 
-            else if(GetAsyncKeyState (VK_LSHIFT) != 0)
+            else if(GetAsyncKeyState (VK_BACKSPACE) != 0)
             {
                 playSFX("OpenMenu");
                 moved = true;
@@ -513,7 +513,7 @@ bool drawSelectMenu()
             limitFPS(150);
             while(!moved)
             {
-                if(GetAsyncKeyState (VK_RIGHT) != 0)
+                if(GetAsyncKeyState (VK_D) != 0)
                     {
                         moved = true;
                         playSFX("CursorMove");
@@ -524,7 +524,7 @@ bool drawSelectMenu()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_LEFT) != 0)
+                if(GetAsyncKeyState (VK_A) != 0)
                     {
                         moved = true;
                         playSFX("CursorMove");
@@ -535,7 +535,7 @@ bool drawSelectMenu()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_LCONTROL) != 0)
+                if(GetAsyncKeyState (VK_ENTER) != 0)
                     {
                         moved = true;
                         playSFX("OpenMenu");

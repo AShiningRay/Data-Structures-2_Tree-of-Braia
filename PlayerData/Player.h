@@ -61,12 +61,21 @@ void insertCharName(unsigned char charIndex)
     printf("\x1B[25D");
 
     // Read input character by character
-    while (index < sizeof(name) - 2) {
-        ch = getchar(); // Read one character
+    while (index < sizeof(name) - 2)
+    {
+        ch = getchar();
+    
+        // If it's an invalid character, skip it
+        if(ch < 0)
+        {
+            continue;
+        }
+
         printf("%c", ch);
-        
+
         // Check if we read a newline or EOF
-        if (ch == '\n' || ch == EOF) {
+        if (ch == '\n' || ch == EOF)
+        {
             break; // Exit the loop on newline or EOF
         }
 
@@ -95,7 +104,7 @@ void createPlayer(unsigned char charIndex, char charName[MAX_NAME_SIZE])
     character[charIndex].atk = 112; // Base 112
     character[charIndex].def = 122; // Base 122
     character[charIndex].inte = 102; // Base 102
-    character[charIndex].luck = 115; // Base 115
+    character[charIndex].luck = 67; // Base 115
     character[charIndex].spd = 75; // Base 75
     character[charIndex].current_XP = 0;
     character[charIndex].next_XP = 100;

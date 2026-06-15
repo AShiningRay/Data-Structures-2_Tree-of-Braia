@@ -44,11 +44,9 @@ int main()
     playBGM("NameInput");
     insertCharName(0);
 
-#ifdef _WIN32
-    if(GetAsyncKeyState(VK_LCONTROL) != 0){} // Clears the CTRL input from the logo "START GAME" prompt
-    if(GetAsyncKeyState(VK_RCONTROL) != 0){} // Clears the CTRL input from the logo "START GAME" prompt
-    if(GetAsyncKeyState(VK_LSHIFT) != 0){}
-#endif
+    // Clear inputs from the logo "START GAME" prompt
+    if(GetAsyncKeyState(VK_ENTER) != 0){}
+    if(GetAsyncKeyState(VK_BACKSPACE) != 0){}
 
     stopBGM("NameInput");
     unsigned char curArea = 0; // TODO: Loading saved data should alter this index before diving below (i don't really think this will have more than 256 areas)

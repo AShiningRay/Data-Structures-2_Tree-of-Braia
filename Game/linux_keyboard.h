@@ -1,9 +1,9 @@
 #include <fcntl.h>
 #include <linux/input.h>
-#include <dirent.h>
 #include <string.h>
 #include <termios.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #define PATH_SIZE 256
 #define NUM_KEYS 185
@@ -211,17 +211,25 @@ int isKeyboard(const char *path)
 
     ioctl(fd, EVIOCGNAME(sizeof(device_name)), device_name);
 
+    printf("DevName:%s\n", device_name);
+
     // Check for keyboard capabilities
     unsigned char ev_bits[EV_MAX / 8 + 1] = {0};
     if (ioctl(fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) < 0) 
     {
         close(fd);
-        return 0; // Failed to get event bits
+        return false; // Failed to get event bits
     }
 
     close(fd);
 
-    return (ev_bits[EV_KEY / 8] & (1 << (EV_KEY % 8))) != 0 && strstr(device_name, "Keyboard") != NULL;
+    if((ev_bits[EV_KEY / 8] & (1 << (EV_KEY % 8))) != 0 && strstr(device_name, "Keyboard") != NULL)
+    {
+        printf("Using device:%s\n", device_name);
+        return true;
+    }
+
+    return false;
 }
 
 void setTerminal(struct termios oldt) 
@@ -233,6 +241,33 @@ void setTerminal(struct termios oldt)
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
 }
 
+int kbHit()
+{
+    struct termios oldt, newt;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    int ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF)
+    {
+        ungetc(ch, stdin);
+        return 1; // There is an input available
+    }
+
+    return 0; // No input
+}
+
 void* updateInputs(void* arg) 
 {
     if (fd == -1) 
@@ -242,8 +277,10 @@ void* updateInputs(void* arg)
     }
 
     struct input_event ev;
+    char ch;
     while (1) 
     {
+        /*
         ssize_t n = read(fd, &ev, sizeof(ev));
         if (n == (ssize_t)-1) { continue; }
 
@@ -253,6 +290,37 @@ void* updateInputs(void* arg)
             key_states[ev.code] = ev.value; // Update key state
             pthread_mutex_unlock(&mutex); // Unlock the mutex
         }
+        */
+        if (kbHit())
+        {
+            char ch = getchar();
+
+            pthread_mutex_lock(&mutex);
+            
+            switch (ch)
+            {
+                // Escape key
+                case 27: key_states[VK_ESC] = 1; 
+
+                // Movement keys
+                case 'w': key_states[VK_W] = 1; break;
+                case 'a': key_states[VK_A] = 1; break;
+                case 's': key_states[VK_S] = 1; break;
+                case 'd': key_states[VK_D] = 1; break;
+
+                // Interaction keys
+                case '\n': key_states[VK_ENTER] = 1; break;
+                case 127: key_states[VK_BACKSPACE] = 1; break;
+                
+                // We might not need any more mappings than these
+                default: break; // Unmapped
+            }
+
+            // Sleep for 4ms, we don't need to update inputs all that often, and
+            // a 250Hz update rate is more than enough.
+            usleep(4000);
+            pthread_mutex_unlock(&mutex);
+        }
     }
 
     return NULL;
@@ -260,46 +328,8 @@ void* updateInputs(void* arg)
 
 void initKeyboard() 
 {
-    struct termios oldt;
-    setTerminal(oldt); // Set terminal to raw mode
-
-    DIR *dir;
-    struct dirent *entry;
-    const char *input_dir = "/dev/input/";
-    
-
-    // Open the input directory
-    dir = opendir(input_dir);
-    if (!dir) 
-    {
-        perror("Failed to open /dev/input/");
-        return;
-    }
-
-    // Iterate through directory entries
-    while ((entry = readdir(dir)) != NULL) 
-    {
-        // Check if the entry is a device file
-        if (strncmp(entry->d_name, "event", 5) == 0) 
-        {
-            snprintf(kbdevice, sizeof(kbdevice), "%s%s", input_dir, entry->d_name);
-
-            // Check if it's a keyboard
-            if (isKeyboard(kbdevice)) 
-            {
-                break; // Exit after finding the first keyboard
-            }
-        }
-    }
-
-    closedir(dir);
-
-    fd = open(kbdevice, O_RDONLY | O_NONBLOCK);
-
     pthread_create(&input_thread, NULL, updateInputs, NULL); // Start the input thread
 }
-
-void closeKeyboardInput() { pthread_join(input_thread, NULL); }
 
 int GetAsyncKeyState(int keycode) 
 {
@@ -307,6 +337,7 @@ int GetAsyncKeyState(int keycode)
 
     pthread_mutex_lock(&mutex);
     int state = (key_states[keycode] == 1) ? 0x8000 : 0;
+    key_states[keycode] = 0;
     pthread_mutex_unlock(&mutex);
     return state;
 }

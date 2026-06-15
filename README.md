@@ -50,9 +50,9 @@ The game has some gameplay features to take note of:
 
 ## Building on Windows
 
-This project requires Code::Blocks on WIN32 platforms. Just open the project on it and compile everything and run straight away (UNTESTED WITH THE RECENT CHANGES TO SUPPORT LINUX AND THE NEW SOUND SUBSYSTEM)
+This project requires Code::Blocks on WIN32 platforms. Just open the project on it, compile everything and run straight away (UNTESTED WITH THE RECENT CHANGES TO SUPPORT LINUX AND THE NEW SOUND SUBSYSTEM)
 
 
 ## Building on Linux
 
-Building this on linux is also rather easy. Just open a terminal, cd to the "Game" subdir, and then run `gcc main.c -o input -lpthread -lm -ldl`. Note that since the linux input is using evdev events directly, it requires sudo to run at the moment.
+Building this on linux is also rather easy. Just open a terminal, cd to the "Game" sub-directory, and then run `gcc main.c -o input -lpthread -lm`.

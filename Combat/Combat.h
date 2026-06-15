@@ -5,6 +5,11 @@
 #define CLASS_SKILLS_PER_LINE 4
 #define COMBAT_TEXT_MAXLEN 79
 
+#define NAVIGATION_ACTIONS false
+#define COMBAT_ACTIONS true
+
+#define PARTY_ESCAPED 127
+
 void enemyEncounter(unsigned char baseLevel, unsigned char levelCap);
 void checkPlayerXP();
 void characterLeveledUp(unsigned char charIndex, unsigned short int leftOver_XP);
@@ -15,7 +20,7 @@ void renderArea1BG(int animTime);
 void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime);
 
 void renderPlayerSkillMenu();
-unsigned char renderPlayerCombatEnemyMenu();
+unsigned char renderPlayerCombatEnemyMenu(bool runEnabled);
 unsigned char renderPlayerMagicSpellMenu();
 void renderMainPartyStats(bool showCombatActions, char *combatText);
 void renderPlayerSkillMenu();
@@ -25,6 +30,8 @@ unsigned char selectEnemy();
 unsigned char playerAttackEnemy(unsigned char enemyIndex);
 bool calculateCriticalHitChance(unsigned short int luck);
 bool playerUseSpell(char *spell, unsigned char enemyIndex);
+bool tryEscape(int charIndex);
+
 
 void enemyAttackPlayer(unsigned char enemyIndex, unsigned char charIndex);
 void enemyDozesOff(unsigned char enemyIndex);
@@ -169,9 +176,14 @@ void fightBoss(unsigned char enemyLevel)
 
 void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime) 
 {
-    unsigned char enemyIndex = 0, attackedEnemy = 0;
+    char enemyIndex = 0, attackedEnemy = 0;
     int internalAnimTime;
     bool allEnemiesKilled = false, enteringEncounter = true, enemyChanged = true;
+    bool hasBoss = false;
+
+    for(int i = 0; i < 3; i++)
+        if(isBoss[i])
+            hasBoss = true;
 
     while (1) 
     {
@@ -232,32 +244,36 @@ void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime)
 
         if(allEnemiesKilled) { break; }
 
-        attackedEnemy = renderPlayerCombatEnemyMenu();
+        attackedEnemy = renderPlayerCombatEnemyMenu(!hasBoss);
 
-        if(Enemy[attackedEnemy].current_HP <= 0)
+        // Has the party escaped?
+        if(attackedEnemy == PARTY_ESCAPED) { break; }
+
+        if(attackedEnemy >= 0 && Enemy[attackedEnemy].current_HP <= 0)
         {
             char combatText[COMBAT_TEXT_MAXLEN];
             if(isBoss[attackedEnemy]) { playSFX("BossDefeated");}
             else { playSFX("EnemyDefeated"); }
             
             snprintf(combatText, COMBAT_TEXT_MAXLEN, " '%s' was defeated! Party gained %d XP points and +%d gold!", Enemy[attackedEnemy].name, Enemy[attackedEnemy].XP_given, Enemy[attackedEnemy].gold_given);
-            renderMainPartyStats(true, combatText);
+            renderMainPartyStats(COMBAT_ACTIONS, combatText);
             moveCursorUpBy(10);
             character[0].current_XP += Enemy[attackedEnemy].XP_given;
             character[0].gold += Enemy[attackedEnemy].gold_given;
             limitFPS(1000);
             enemyChanged = true;
         }
-        else if(character[0].current_HP <= 0)
+
+        enemyAction();
+
+        if(character[0].current_HP <= 0)
         {
             char combatText[COMBAT_TEXT_MAXLEN];
             snprintf(combatText, COMBAT_TEXT_MAXLEN, "%s died...", character[0].name);
-            renderMainPartyStats(true, combatText);
+            renderMainPartyStats(COMBAT_ACTIONS, combatText);
             moveCursorUpBy(10);
             break;
         }
-
-        enemyAction();
 
         // Clear all player actions from the UI, as this turn is over
         for(unsigned char i = 0; i < partySize; i++) {strcpy(character[i].action,""); }
@@ -297,8 +313,8 @@ void characterLeveledUp(unsigned char charIndex, unsigned short int leftOver_XP)
     character[charIndex].atk += 16;
     character[charIndex].def += 12;
     character[charIndex].inte += 10;
-    character[charIndex].luck += 3;
-    character[charIndex].spd += 2;
+    character[charIndex].luck += 7;
+    character[charIndex].spd += 5;
     character[charIndex].next_XP *= 2;
     character[charIndex].current_XP = 0;
     character[charIndex].current_XP += leftOver_XP;
@@ -373,7 +389,7 @@ void characterLeveledUp(unsigned char charIndex, unsigned short int leftOver_XP)
         character[charIndex].learnedSkills += 1;
     }
 
-    renderMainPartyStats(true, combatText);
+    renderMainPartyStats(COMBAT_ACTIONS, combatText);
     moveCursorUpBy(10);
     limitFPS(1500);
 }
@@ -486,7 +502,7 @@ void renderEnemyCombatStat()
 
 unsigned char selectEnemy() 
 {
-    unsigned char selIndex = 0;
+    char selIndex = 0;
 
     bool enemyIsSelectable[3] = { false, false, false };
 
@@ -495,7 +511,7 @@ unsigned char selectEnemy()
 
     while(true) 
     {
-        renderMainPartyStats(true, "");
+        renderMainPartyStats(COMBAT_ACTIONS, "");
         SetColor(WHITE);
         useBoldConsoleText();
         printf("\t\t\t┌────────────────────────────────SELECT YOUR FOE─────────────────────────────────┐\n");
@@ -552,36 +568,37 @@ unsigned char selectEnemy()
         printf("\t\t\t└────────────────────────────────────────────────────────────────────────────────┘\n\n");
         restoreConsoleText();
         moveCursorUpBy(14);
-        limitFPS(150);
 
         while(true)
         {
-            if(GetAsyncKeyState (VK_LEFT) != 0)
+            if(GetAsyncKeyState (VK_A) != 0)
             {
                 limitFPS(150);
                 playSFX("CombatCursorMove");
                 selIndex--;
+                if(enemyIsSelectable[selIndex] == false) { selIndex--; }
                 if(selIndex < 0) { selIndex = enemiesInEncounter-1; }
                 break;
             }
 
-            if(GetAsyncKeyState (VK_RIGHT) != 0)
+            if(GetAsyncKeyState (VK_D) != 0)
             {
                 limitFPS(150);
                 playSFX("CombatCursorMove");
                 selIndex++;
+                if(enemyIsSelectable[selIndex] == false) { selIndex++; }
                 if(selIndex >= enemiesInEncounter) { selIndex = 0; }
                 break;
             }
 
-            if(GetAsyncKeyState (VK_LCONTROL) != 0)
+            if(GetAsyncKeyState (VK_ENTER) != 0)
             {
                 playSFX("CombatCursorSelect");
                 limitFPS(150);
                 return selIndex;
             }
 
-            if(GetAsyncKeyState (VK_LSHIFT) != 0)
+            if(GetAsyncKeyState (VK_BACKSPACE) != 0)
             {
                 playSFX("ReturnFromMenu");
                 return -1;
@@ -591,18 +608,19 @@ unsigned char selectEnemy()
     }
 }
 
-unsigned char renderPlayerCombatEnemyMenu()
+unsigned char renderPlayerCombatEnemyMenu(bool runEnabled)
 {
     bool atksel = true;
     bool spellsel = false;
     bool actsel = false; // TODO: Unused, as AP skills aren't implemented yet
     bool undosel = false; // TODO: Unused, as there has to be more than one character in the party
+    bool runsel = false; // TODO: Unused, as running from battles should be tied to some mechanic
     char enemyAttacked = -1;
     unsigned char curCharacter = 0; // Only one character for now
 
     while(true)
     {
-        renderMainPartyStats(true, "");
+        renderMainPartyStats(COMBAT_ACTIONS, "");
 
         SetColor(WHITE);
         useBoldConsoleText();
@@ -611,35 +629,52 @@ unsigned char renderPlayerCombatEnemyMenu()
         printf("\t\t\t│ ");
         if(atksel) { SetColor(LIGHTGREEN); }
         printf("%s", (atksel ? "┼─" : "  "));
-        printf(" BASIC ATTACK    ");
+        printf(" BASIC ATTACK   ");
         SetColor(WHITE);
         printf("│ ");
         if(spellsel) { SetColor(LIGHTBLUE); }
         printf("%s", (spellsel ? "┼─" : "  "));
-        printf(" MAGIC SPELL    ");
+        printf(" MAGIC SPELL   ");
         SetColor(WHITE);
         printf("│ ");
         if(actsel) { SetColor(YELLOW); }
         printf("%s", (actsel ? "┼─" : "  "));
-        printf(" CLASS SKILL    ");
+        printf(" CLASS SKILL   ");
         SetColor(WHITE);
         printf("│ ");
         if(undosel) { SetColor(LIGHTCYAN); }
         else if(curCharacter == 0) { SetColor(DARKGRAY); }
         printf("%s", (undosel ? "┼─" : "  "));
-        printf(" UNDO LAST      ");
+        printf(" UNDO   ");
+        SetColor(WHITE);
+        printf("│");
+        if(runsel) { SetColor(BROWN); }
+        printf("%s", (runsel ? "┼─" : "  "));
+        printf(" FLEE   ");
         SetColor(WHITE);
         printf("│");
         printf("\n\t\t\t└────────────────────────────────────────────────────────────────────────────────┘\n");
         restoreConsoleText();
         moveCursorUpBy(14);
+
         while(true)
         {
-            if(GetAsyncKeyState (VK_LEFT) != 0)
+            if(GetAsyncKeyState (VK_A) != 0)
             {
                 limitFPS(150);
                 playSFX("CombatCursorMove");
-                if(spellsel)
+                if(atksel)
+                {
+                    atksel = false;
+                    
+                    if (runEnabled)
+                        runsel = true;
+                    else if (curCharacter != 0)
+                        undosel = true;
+                    else
+                        actsel = true;
+                }
+                else if(spellsel)
                 {
                     spellsel = false;
                     atksel = true;
@@ -649,10 +684,28 @@ unsigned char renderPlayerCombatEnemyMenu()
                     actsel = false;
                     spellsel = true;
                 }
+                else if(actsel)
+                {
+                    actsel = false;
+                    spellsel = true;
+                }
+                else if(undosel)
+                {
+                    undosel = false;
+                    actsel = true;
+                }
+                else if(runsel)
+                {
+                    runsel = false;
+                    if (curCharacter != 0)
+                        undosel = true;
+                    else
+                        actsel = true;
+                }
                 break;
             }
 
-            if(GetAsyncKeyState (VK_RIGHT) != 0)
+            if(GetAsyncKeyState (VK_D) != 0)
             {
                 limitFPS(150);
                 playSFX("CombatCursorMove");
@@ -666,10 +719,31 @@ unsigned char renderPlayerCombatEnemyMenu()
                     spellsel = false;
                     actsel = true;
                 }
+                else if(actsel)
+                {
+                    actsel = false;
+
+                    if (curCharacter != 0)
+                        undosel = true;
+                    else if (runEnabled)
+                        runsel = true;
+                    else
+                        atksel = true;
+                }
+                else if(undosel)
+                {
+                    undosel = false;
+                    runsel = true;
+                }
+                else if(runsel)
+                {
+                    runsel = false;
+                    atksel = true;
+                }
                 break;
             }
 
-            if(GetAsyncKeyState (VK_LCONTROL) != 0)
+            if(GetAsyncKeyState (VK_ENTER) != 0)
             {
                 playSFX("CombatCursorSelect");
                 if(atksel)
@@ -683,10 +757,24 @@ unsigned char renderPlayerCombatEnemyMenu()
                     }
                     
                 }
-                else
+                else if(spellsel)
                 {
                     enemyAttacked = renderPlayerMagicSpellMenu();
                     if(enemyAttacked != -1) { return enemyAttacked; }
+                }
+                // TODO: Class Skill
+                else if(actsel)
+                {
+                    enemyAttacked = renderPlayerMagicSpellMenu();
+                    if(enemyAttacked != -1) { return enemyAttacked; }
+                }
+                else if(undosel)
+                {
+                    // TODO: We only have one player now, no undoing of actions.
+                }
+                else if(runsel)
+                {
+                    return tryEscape(curCharacter) ? PARTY_ESCAPED : enemyAttacked;
                 }
                 limitFPS(250);
                 break;
@@ -706,21 +794,21 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
 
     if(showCombatActions) 
     {
-        printf("\t\t\t┌────────────────────────────────────────────────────────────────────────────────┐\n");
-        printf("\t\t\t│ %s", combatText);
+        printf("%s\t┌────────────────────────────────────────────────────────────────────────────────┐\n", (showCombatActions ? "\t\t" : "\t "));
+        printf("%s\t│ %s", (showCombatActions ? "\t\t" : "\t "), combatText);
         for(unsigned char pad = 0; pad < COMBAT_TEXT_MAXLEN - strlen(combatText); pad++) { printf(" "); }
         printf("│\n");
-        printf("\t\t\t└────────────────────────────────────────────────────────────────────────────────┘\n");
+        printf("%s\t└────────────────────────────────────────────────────────────────────────────────┘\n", (showCombatActions ? "\t\t" : "\t "));
 
     }
     
-    printf("\t\t\t┌───────────────┬────────────────┬────────────────┬────────────────%s\n", (showCombatActions ? "┬─────────────┐" : "┐"));
+    printf("%s\t┌───────────────┬────────────────┬────────────────┬────────────────┬─────────────┐\n", (showCombatActions ? "\t\t" : "\t "));
     
     // Names
     for(unsigned char i = 0; i < MAX_PARTY_SIZE; i++) 
     {
         SetColor(WHITE);
-        if(i == 0) { printf("\t\t\t│ "); }
+        if(i == 0) { printf("%s\t│ ", (showCombatActions ? "\t\t" : "\t ")); }
         if(i < partySize) 
         {
             charAt = 0;
@@ -735,17 +823,17 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
         SetColor(WHITE);
         printf(" │");
     }
-    if(showCombatActions) { printf(" KEY ACTIONS │"); }
+    printf(" KEY ACTIONS │");
     
     printf("\n");
 
     SetColor(WHITE);
-    printf("\t\t\t├───────────────┼────────────────┼────────────────┼────────────────%s\n", (showCombatActions ? "┼─────────────┤" : "┤"));
+    printf("%s\t├───────────────┼────────────────┼────────────────┼────────────────┼─────────────┤\n", (showCombatActions ? "\t\t" : "\t "));
 
     // HP Stats
     for(unsigned char i = 0; i < MAX_PARTY_SIZE; i++) 
     {
-        if(i == 0) { printf("\t\t\t│"); }
+        if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
 
         SetColor(LIGHTGREEN);
         if(i < partySize)  { printf(" HP: %4d/%4d ",character[i].current_HP, character[i].max_HP); }
@@ -753,13 +841,13 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
         SetColor(WHITE);
         printf("│");
     }
-    if(showCombatActions) { printf(" <^v> - MOVE │"); }
+    printf(" WASD - MOVE │");
     printf("\n");
 
     // MP Stats
     for(unsigned char i = 0; i < MAX_PARTY_SIZE; i++) 
     {
-        if(i == 0) { printf("\t\t\t│"); }
+        if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
         
         SetColor(LIGHTBLUE);
         if(i < partySize)  { printf(" MP: %4d/%4d ",character[i].current_MP, character[i].max_MP); }
@@ -767,13 +855,14 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
         SetColor(WHITE);
         printf("│");
     }
-    if(showCombatActions) { printf("CTRL - SELECT│"); }
+    if(showCombatActions) { printf(" ENTER - ACT │"); }
+    else { printf("ENTER - ITEMS│"); }
     printf("\n");
 
     // AP Stats
     for(unsigned char i = 0; i < MAX_PARTY_SIZE; i++) 
     {
-        if(i == 0) { printf("\t\t\t│"); }
+        if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
         
         SetColor(YELLOW);
         if(i < partySize)  { printf(" AP: %3d/%d   ", 0, 100); } // character[0].current_AP, character[0].max_AP); // AP not implemented yetcharacter[i].current_AP, character[i].max_AP); }
@@ -781,11 +870,12 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
         SetColor(WHITE);
         printf("│");
     }
-    if(showCombatActions) { printf("SHFT - RETURN│"); }
+    if(showCombatActions) { printf(" BKSP - UNDO │"); }
+    else { printf("BKSP - SKILLS│"); }
     printf("\n");
 
     
-    printf("\t\t\t└──────%s──────┴────────────────┴────────────────┴────────────────%s\n", (strcmp(character[0].action, "") != 0 ? character[0].action : "───"), (showCombatActions ? "┴─────────────┘" : "┘"));
+    printf("%s\t└──────%s──────┴────────────────┴────────────────┴────────────────┴─────────────┘\n", (showCombatActions ? "\t\t" : "\t "), (strcmp(character[0].action, "") != 0 ? character[0].action : "───"));
     restoreConsoleText();
 }
 
@@ -796,7 +886,7 @@ unsigned char renderPlayerMagicSpellMenu()
 
     while(true)
     {
-        renderMainPartyStats(true, "");
+        renderMainPartyStats(COMBAT_ACTIONS, "");
         SetColor(WHITE);
         useBoldConsoleText();
         printf("\t\t\t┌────────────────────────────────SELECT THE SPELL────────────────────────────────┐\n");
@@ -846,13 +936,12 @@ unsigned char renderPlayerMagicSpellMenu()
         printf("\n\t\t\t└────────────────────────────────────────────────────────────────────────────────┘\n");
         restoreConsoleText();
         moveCursorUpBy(14);
-        limitFPS(150);
         
         while(true)
         {
             if(character[0].learnedSpells > 0) // Only move the cursor of there's any spell to select
             {
-                if(GetAsyncKeyState (VK_UP) != 0)
+                if(GetAsyncKeyState (VK_W) != 0)
                 {
                     if(spellsel > 3 && character[0].learnedSpells > 4) 
                     {
@@ -863,7 +952,7 @@ unsigned char renderPlayerMagicSpellMenu()
                     }
                 }
 
-                if(GetAsyncKeyState (VK_DOWN) != 0)
+                if(GetAsyncKeyState (VK_S) != 0)
                 {
                     if(spellsel < 4 && character[0].learnedSpells > 4) 
                     {
@@ -874,7 +963,7 @@ unsigned char renderPlayerMagicSpellMenu()
                     }
                 }
 
-                if(GetAsyncKeyState (VK_LEFT) != 0)
+                if(GetAsyncKeyState (VK_A) != 0)
                 {
                     if(spellsel > 0) 
                     { 
@@ -885,7 +974,7 @@ unsigned char renderPlayerMagicSpellMenu()
                     }
                 }
 
-                if(GetAsyncKeyState (VK_RIGHT) != 0)
+                if(GetAsyncKeyState (VK_D) != 0)
                 {
                     if(spellsel < (character[0].learnedSpells-1)) 
                     {
@@ -898,7 +987,7 @@ unsigned char renderPlayerMagicSpellMenu()
             }
             
 
-            if(GetAsyncKeyState (VK_LCONTROL) != 0)
+            if(GetAsyncKeyState (VK_ENTER) != 0)
             {
                 // Only select spells if there are any available, and it doesn't require more MP than available
                 if(character[0].learnedSpells == 0 && character[0].current_MP < findSkillMPUsage(character[0].magtree, availableSpells[character[0].spellIndices[spellsel]])) 
@@ -917,7 +1006,7 @@ unsigned char renderPlayerMagicSpellMenu()
                 return enemyIndex;
             }
 
-            if(GetAsyncKeyState (VK_LSHIFT) != 0)
+            if(GetAsyncKeyState (VK_BACKSPACE) != 0)
             {
                 playSFX("ReturnFromMenu");
                 return -1;
@@ -945,7 +1034,7 @@ unsigned char playerAttackEnemy(unsigned char enemyIndex)
     {
         Enemy[enemyIndex].current_HP -= damage;
         snprintf(combatText, COMBAT_TEXT_MAXLEN, "%s attacks... %s causes %d damage to '%s'.", character[0].name, (gotCriticalHit ? "CRITICAL HIT!!!" : "and"), damage, Enemy[enemyIndex].name);
-        renderMainPartyStats(true, combatText);
+        renderMainPartyStats(COMBAT_ACTIONS, combatText);
         moveCursorUpBy(10);
         limitFPS(1000);
     }
@@ -982,7 +1071,7 @@ bool playerUseSpell(char *spell, unsigned char enemyIndex)
         playSFX(spell);
         Enemy[enemyIndex].current_HP -= damage;
         snprintf(combatText, COMBAT_TEXT_MAXLEN, "%s used %s... and caused %d damage to '%s'.", character[0].name, spell, damage, Enemy[enemyIndex].name);
-        renderMainPartyStats(true, combatText);
+        renderMainPartyStats(COMBAT_ACTIONS, combatText);
         moveCursorUpBy(10);
         limitFPS(1000);
     }
@@ -990,6 +1079,31 @@ bool playerUseSpell(char *spell, unsigned char enemyIndex)
     character[0].current_MP -= findSkillMPUsage(character[0].magtree, spell);
 
     return true;
+}
+
+bool tryEscape(int charIndex)
+{
+    int value = rand() % 500;
+    int success = (character[charIndex].luck + character[charIndex].spd) -
+    (enemiesInEncounter * 50);
+    char combatText[COMBAT_TEXT_MAXLEN];
+
+    if(value < success)
+    {
+        snprintf(combatText, COMBAT_TEXT_MAXLEN, "The party escaped!!!");
+        playSFX("PartyEscaped");
+    }
+    else
+    {
+        snprintf(combatText, COMBAT_TEXT_MAXLEN, "Escape failed...");
+        playSFX("PlayerHit");
+    }
+
+    renderMainPartyStats(COMBAT_ACTIONS, combatText);
+    moveCursorUpBy(10);
+    limitFPS(1000);
+
+    return (value < success);
 }
 
 // TODO: Attacking party characters, though we need more than a party member for that
@@ -1003,7 +1117,7 @@ void enemyAttackPlayer(unsigned char enemyIndex, unsigned char charIndex)
     {
         character[charIndex].current_HP -= damage;
         snprintf(combatText, COMBAT_TEXT_MAXLEN, "%s attacks... it caused %d damage to '%s'.", Enemy[enemyIndex].name, damage, character[charIndex].name);
-        renderMainPartyStats(true, combatText);
+        renderMainPartyStats(COMBAT_ACTIONS, combatText);
         moveCursorUpBy(10);
         limitFPS(1000);
     }
@@ -1013,7 +1127,7 @@ void enemyDozesOff(unsigned char enemyIndex)
 {
     char combatText[COMBAT_TEXT_MAXLEN];
     snprintf(combatText, COMBAT_TEXT_MAXLEN, "%s enemy dozed off...", Enemy[enemyIndex].name);
-    renderMainPartyStats(true, combatText);
+    renderMainPartyStats(COMBAT_ACTIONS, combatText);
     moveCursorUpBy(10);
     limitFPS(1000);
 }

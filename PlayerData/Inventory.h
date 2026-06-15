@@ -48,8 +48,8 @@ void openInventory()
             printf("│\n");
             // End of selectable items
             printf("\t├────────────────────COMMANDS─────────────────────┤\n");
-            printf("\t│  LSHIFT-USE ITEM      │  ARROWS- MOVE SELECTOR  │\n");
-            printf("\t│  LALT-CLOSE GAME      │  LCTRL - CLOSE INVENTORY│\n");
+            printf("\t│  ENTER-USE ITEM       │   WASD- MOVE SELECTOR   │\n");
+            printf("\t│  ESC-CLOSE GAME       │  BACKSPACE - CLOSE MENU │\n");
             printf("\t├───────────────────────┴─────────────────────────┤\n");
             printf("\t├────────────────ITEM DESCRIPTION─────────────────┤\n");
             printf("\t├─────────────────────────────────────────────────┤\n");
@@ -68,7 +68,7 @@ void openInventory()
 
             while(!moved)
             {
-                 if(GetAsyncKeyState (VK_UP) != 0)
+                 if(GetAsyncKeyState (VK_W) != 0)
                     {
                         playSFX("MoveCursor");
                         moved = true;
@@ -86,7 +86,7 @@ void openInventory()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_DOWN) != 0)
+                if(GetAsyncKeyState (VK_S) != 0)
                     {
                         playSFX("MoveCursor");
                         moved = true;
@@ -104,7 +104,7 @@ void openInventory()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_LEFT) != 0)
+                if(GetAsyncKeyState (VK_A) != 0)
                     {
                         playSFX("MoveCursor");
                         moved = true;
@@ -123,7 +123,7 @@ void openInventory()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_RIGHT) != 0)
+                if(GetAsyncKeyState (VK_D) != 0)
                     {
                         playSFX("MoveCursor");
                         moved = true;
@@ -142,7 +142,7 @@ void openInventory()
                             }
                     }
 
-                if(GetAsyncKeyState (VK_LCONTROL) != 0)
+                if(GetAsyncKeyState (VK_BACKSPACE) != 0)
                     {
                         playSFX("ReturnFromMenu");
                         moved = true;
@@ -152,7 +152,7 @@ void openInventory()
                         return;
                     }
 
-                if(GetAsyncKeyState (VK_LSHIFT) != 0)
+                if(GetAsyncKeyState (VK_ENTER) != 0)
                     {
                         if(HPpotsel)
                             if(character[0].it.HPpotion > 0 && character[0].current_HP < character[0].max_HP)
@@ -220,7 +220,7 @@ void openInventory()
 
                     }
 
-                if(GetAsyncKeyState (VK_LMENU) != 0)
+                if(GetAsyncKeyState (VK_ESC) != 0)
                 {
                     playSFX("CloseGame");     
                     printf("\n\tTERMINATING THE GAME...");
@@ -288,7 +288,7 @@ void showCaracterStats_Inventory() // TODO: Rework this entirely
     SetColor(LIGHTGREEN);
     printf("spd:%3d  ", 0); // character[0].spd); //SPD stat not implemented
     SetColor(WHITE);
-    printf("│  │  ARROWS-MOVE  LCTRL-INVENTORY  │\n");
+    printf("│  │   WASD-MOVE  ENTER-INVENTORY   │\n");
 
     printf("\t│XP:(");
 
@@ -302,11 +302,11 @@ void showCaracterStats_Inventory() // TODO: Rework this entirely
         SetColor(YELLOW);
     for(unsigned short int i = 0; i < percent; i++) printf(">");
 
-      SetColor(WHITE);
+    SetColor(WHITE);
 
     for(short int i = 40 - percent - 2; i > 0; i--) { printf(" "); }
 
-    printf(")│  │      LSHIFT-OPEN SKILLTREE     │");
+    printf(")│  │    BACKSPACE-OPEN SKILLTREE    │");
 
     restoreConsoleText();
 }
@@ -331,12 +331,12 @@ void renderPlayerSkillMenu()
             print_skillTree((character[0].magtree), 20);
             printf("\n\t(Skills)\n\n");
             print_skillTree((character[0].phystree), 20);
-            printf("\t|\tPRESS LSHIFT TO CLOSE THE MENU");
+            printf("\t|\tPRESS BACKSPACE TO CLOSE THE MENU");
             printf("\n\t│___________________________________________________\n");
 
             while(!moved)
             {
-                 if(GetAsyncKeyState (VK_LSHIFT) != 0)
+                 if(GetAsyncKeyState (VK_BACKSPACE) != 0)
                     {
                         moved = true;
                         printf("\n\tCLOSING THE MENU...");

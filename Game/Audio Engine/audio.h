@@ -3,7 +3,7 @@
 #include <process.h>
 #endif
 
-#define NUM_SFX 24 // Current number of SFX files
+#define NUM_SFX 25 // Current number of SFX files
 #define NUM_BGM 8 // Current number of BGM files
 
 #include "miniaudio.h"
@@ -39,6 +39,7 @@ char FXPaths[NUM_SFX][128] =
   "Audio Engine/SFX/BossDefeated.mp3",
   "Audio Engine/SFX/EnemyDefeated.mp3",
   "Audio Engine/SFX/EnemyEncounter.mp3",
+  "Audio Engine/SFX/PartyEscaped.mp3",
 };
 
 char BGMPaths[NUM_BGM][128] = 
