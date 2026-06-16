@@ -132,11 +132,11 @@ char Title[29][128] =
 
 char pressCtrl[5][128] = 
 {
-"                      ____  ____  ________________    _  _______   __________________ _    __     ",
-"                     / __ \\/ __ \\/ ____/ ___/ ___/   ( )/ ____/ | / /_  __/ ____/ __ ( )  / /     ",
-"                    / /_/ / /_/ / __/  \\__ \\\\__ \\    |// __/ /  |/ / / / / __/ / /_/ //  / /       ",
-"                   / ____/ _, _/ /___ ___/ /__/ /     / /___/ /|  / / / / /___/ _, _/   /_/         ",
-"                  /_/   /_/ |_/_____//____/____/     /_____/_/ |_/ /_/ /_____/_/ |_|   (_)           ",
+"                            ____  ____  ________________    _  _______   __________________ _    __     ",
+"                           / __ \\/ __ \\/ ____/ ___/ ___/   ( )/ ____/ | / /_  __/ ____/ __ ( )  / /     ",
+"                          / /_/ / /_/ / __/  \\__ \\\\__ \\    |// __/ /  |/ / / / / __/ / /_/ //  / /       ",
+"                         / ____/ _, _/ /___ ___/ /__/ /     / /___/ /|  / / / / /___/ _, _/   /_/         ",
+"                        /_/   /_/ |_/_____//____/____/     /_____/_/ |_/ /_/ /_____/_/ |_|   (_)           ",
 };
 
 char Credits[80][60] =
@@ -145,7 +145,7 @@ char Credits[80][60] =
 "",
 "",
 "",
-"               DEVELOPED BY BRAIA SOFTWORKS",
+"               DEVELOPED BY 'BRAIA SOFTWORKS'",
 "",
 "",
 "",
@@ -157,7 +157,7 @@ char Credits[80][60] =
 "                           WRITING                         ",
 "",
 "            Kaio Nascimento    Main Writer                 ",
-"            Paulo Sousa        Secondary Writer            ", ///////
+"            Paulo Sousa        Secondary Writer            ",
 "            Matheus Rondon     Secondary Writer            ",
 "",
 "                           ART",
@@ -183,12 +183,12 @@ char Credits[80][60] =
 "             Matheus Rondon    Secondary Sound Developer   ",
 "             Matheus Rondon    Audio Engineer",
 "",
-"                    TAD DEVELOPMENT",
+"            ABSTRACT DATA STRUCTURES DEVELOPMENT           ",
 "                                   ",
-"             Paulo Sousa    Main TAD Developer     ",
-"             Matheus Rondon    Secondary TAD Developer    ",
-"             Tulio Estrela   Main TAD Tester",
-"             Kaio Nascimento Secondary TAD Tester",
+"             Paulo Sousa    Main ADT Developer     ",
+"             Matheus Rondon    Secondary ADT Developer    ",
+"             Tulio Estrela   Main ADT Tester",
+"             Kaio Nascimento Secondary ADT Tester",
 };
 
 // ######################################### Actual Game Areas

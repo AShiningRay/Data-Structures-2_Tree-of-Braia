@@ -1,9 +1,8 @@
 #define BG_YSIZE 37
+#define SCREEN_MAX_WIDTH 128
 #define FIGHTSCREEN_Y_PADDING 12
-#define FIGHTSCREEN_X_PADDING 2
-#define ENEMY_X_SEPARATOR 15
 
-char Area1_BG[37][130] = 
+char Area1_BG[37][SCREEN_MAX_WIDTH] = 
 {
 "VVVVVWWWVWWWWWWWWWWWWWWWWWWWWWWWWVWWVVVVVVVWVVWVWWWWWWVWWWWVVVVVVVVVVVVVVWWWWWWWWWWWWWWWWWWWWWWWWWWWVWWWWWWWWWWWWWVWWWWWWWWWWWW",
 "VVVVVVVVVVVVVVVVVVVVVVVVVWWWWWWWWVWWWWWWVVVVVVVVVVVVVVVVVVVVVVWWBBBVVVVVVVVVVWWWVWWWWWWWWWWWVVVVVVVVVVWVVVVVVVVVVVVVVVWV&&VVWWW",
@@ -44,7 +43,7 @@ char Area1_BG[37][130] =
 "$$#$$$$$$$$$$$$$$$$$$$$&&$$$#$$$&&&&$&&&&&&&&&&&&&&&&&&$$$#$$$#$$$$$$$$$$$$$K#$K$K#$$#$##$$##$#K$$$$$$&&$&$K$$$$$K##$$$K##$$K$#"
 };
 
-char Area1Int_BG[30][130] =
+char Area1Int_BG[30][SCREEN_MAX_WIDTH] =
 {
 "`||``||#|||`````````````BBV$$V$$$$$VV$VBB```````|`````||||||```````````||``````````|`|```````|###```||||||||||#|||`````|##|||`",
 "`||``||||`||````|``````BBVVV$VV$VV$VVVV$BB``````|`````||||||``````|`````|```````````||`````````||````||||||||||||`||||`|#|||||",

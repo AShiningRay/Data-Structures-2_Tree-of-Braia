@@ -45,13 +45,13 @@ void enemyEncounter(unsigned char baseLevel, unsigned char levelCap)
     stopBGM("Area3");
     stopBGM("HubWorld");
 
-    moveCursorUpBy(56);
+    moveCursorUpBy(MIN_YSIZE);
     playSFX("EnemyEncounter");
-    for(unsigned char y = 0; y < MAX_YSIZE-1; y++) 
+    for(unsigned char y = 0; y < MIN_YSIZE-1; y++) 
     {
         if(y % 2 == 0)
         {
-            for(unsigned char x = 0; x < MAX_XSIZE; x++) 
+            for(unsigned char x = 0; x < MIN_XSIZE; x++) 
             {
                 putchar(' ');
             }
@@ -64,12 +64,12 @@ void enemyEncounter(unsigned char baseLevel, unsigned char levelCap)
         }
     }
 
-    moveCursorUpBy(56);
-    for(unsigned char y = 0; y < MAX_YSIZE; y++) 
+    moveCursorUpBy(MIN_YSIZE);
+    for(unsigned char y = 0; y < MIN_YSIZE; y++) 
     {
         if(y % 2 == 1)
         {
-            for(unsigned char x = 0; x < MAX_XSIZE; x++) 
+            for(unsigned char x = 0; x < MIN_XSIZE; x++) 
             {
                 putchar(' ');
             }
@@ -88,9 +88,7 @@ void enemyEncounter(unsigned char baseLevel, unsigned char levelCap)
     bool enemyIsBoss[3] = {false, false, false}; // If the enemy is a boss UNUSED YET
     unsigned char spawnedEnemies = rand();
     
-    if(spawnedEnemies % 3 == 0)      { enemiesInEncounter = 3; }
-    else if(spawnedEnemies % 2 == 0) { enemiesInEncounter = 2; }
-    else                             { enemiesInEncounter = 1; }
+    enemiesInEncounter = 1 + (spawnedEnemies % 3);
 
     for(unsigned char enemyIndex = 0; enemyIndex < enemiesInEncounter; enemyIndex++) 
     {
@@ -199,14 +197,27 @@ void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime)
             if(isBoss[enemyIndex]) { charIndex[enemyIndex] += NUM_ENEMIES; } // On the enemy sprite data, bosses are addressed after all normal enemies
         }
 
-        char enemyHeight = 0;
+        char enemyHeight = (rand() % 3) - 1;
         for(unsigned char y = 0; y < BG_YSIZE-FIGHTSCREEN_Y_PADDING; y++)
         {
-            moveCursorLeftBy(FIGHTSCREEN_X_PADDING);
+            
             for(unsigned char enemyDrawIdx = 0; enemyDrawIdx < enemiesInEncounter; enemyDrawIdx++) 
             {
                 unsigned char charToRender = charIndex[enemyDrawIdx];
-                for(unsigned char x = 0; x < sizeof(enemySprites[charToRender][0]); x++)
+                unsigned char enemyPos;
+
+                if(enemiesInEncounter == 2 && enemyDrawIdx == 1)
+                    enemyPos = 2;
+                else if(enemiesInEncounter == 1)
+                    enemyPos = 1;
+                else
+                    enemyPos = enemyDrawIdx;
+
+                int offset = enemyPosition[enemyPos] - (enemyWidth[charToRender]/2);
+
+                moveCursorRightBy(offset);
+                
+                for(unsigned char x = 0; x < enemyWidth[charToRender]; x++)
                 {
                     char pixelToDraw = enemySprites[charToRender][y][x];
                     if(pixelToDraw != ' ' && Enemy[enemyDrawIdx].current_HP > 0) 
@@ -218,18 +229,18 @@ void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime)
                     {
                         moveCursorRightBy(1);
                     }
-
-                    textcolor(WHITE);
-                    textbackground(BLACK);
                 }
-                moveCursorLeftBy(ENEMY_X_SEPARATOR);
+                
+                moveCursorToLineStart();
             }
-            
 
             putchar('\n');
-            enemyHeight += 1;
+            enemyHeight = (rand() % 3) - 1;
             if(animTime != 0 && enemyChanged) { limitFPS(animTime); }
         }
+
+        textcolor(WHITE);
+        textbackground(BLACK);
 
         enemyChanged = false; // Enemies have had their changes applied already, so set this flag as false until needed
 
@@ -576,8 +587,8 @@ unsigned char selectEnemy()
                 limitFPS(150);
                 playSFX("CombatCursorMove");
                 selIndex--;
-                if(enemyIsSelectable[selIndex] == false) { selIndex--; }
                 if(selIndex < 0) { selIndex = enemiesInEncounter-1; }
+                while(enemyIsSelectable[selIndex] == false) { selIndex--; }
                 break;
             }
 
@@ -586,7 +597,7 @@ unsigned char selectEnemy()
                 limitFPS(150);
                 playSFX("CombatCursorMove");
                 selIndex++;
-                if(enemyIsSelectable[selIndex] == false) { selIndex++; }
+                while(enemyIsSelectable[selIndex] == false) { selIndex++; }
                 if(selIndex >= enemiesInEncounter) { selIndex = 0; }
                 break;
             }
@@ -904,8 +915,11 @@ unsigned char renderPlayerMagicSpellMenu()
             else 
             {
                 if(spellsel == spellIdx) 
-                { 
-                    SetColor(LIGHTGREEN);
+                {
+                    if (character[0].current_MP < findSkillMPUsage(character[0].magtree, availableSpells[character[0].spellIndices[spellIdx]]))
+                        SetColor(DARKGRAY);
+                    else
+                        SetColor(LIGHTGREEN);
                     printf(" ┼─");
                     useUnderlineConsoleText();
                 }
@@ -990,7 +1004,8 @@ unsigned char renderPlayerMagicSpellMenu()
             if(GetAsyncKeyState (VK_ENTER) != 0)
             {
                 // Only select spells if there are any available, and it doesn't require more MP than available
-                if(character[0].learnedSpells == 0 && character[0].current_MP < findSkillMPUsage(character[0].magtree, availableSpells[character[0].spellIndices[spellsel]])) 
+                if(character[0].learnedSpells == 0 ||
+                    (character[0].learnedSpells > 0 && character[0].current_MP < findSkillMPUsage(character[0].magtree, availableSpells[character[0].spellIndices[spellsel]]))) 
                 {
                     playSFX("ReturnFromMenu");
                     break; 

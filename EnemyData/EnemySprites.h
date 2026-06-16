@@ -1,50 +1,54 @@
 #define NUM_ENEMIES 6 // Current amount of normal enemies
 #define NUM_BOSSES 3 // Current amount of bosses
 
-char (*enemySprites[NUM_ENEMIES+NUM_BOSSES])[128];
+char (*enemySprites[NUM_ENEMIES+NUM_BOSSES])[127];
 int enemySpriteRows[NUM_ENEMIES+NUM_BOSSES];
 
-char combat_yellowBlob[30][128] =
+int enemyWidth[] = {32, 32, 64, 64, 64, 127, 127, 127};
+
+char enemyPosition[] = {24, 64, 104};
+
+char combat_yellowBlob[30][127] =
 {
-"             ........         ",
-"          ...KKKKKKKK..       ",
-"        ..KKKKKKKKKKKKK.      ",
-"  ..   .KKKKKK000KKKKLKK.     ",
-" .KK. .KKKKK0.....0KKK000.    ",
-"  .. .KK@@KK@0.MM.0KK0.M.0.   ",
-"     .@@@@KKKK0000KKKK000.  . ",
-"   ..@@@@@@@KKKKKKK@K@@@.  .@.",
-"  .@@@@@@@@@@KKKK@KKKKKK. .K. ",
-" .@@@@@@@@0@@KKK@@@KK@@KK. .  ",
-".K@00@@@@000@@KK@@@@K@@KKK.   ",
-".KK@@@@@@@KK@@@@@@@@@@@KKKK.  ",
-" .KKK@@@@@@@00@@@00@@@@0@K@.  ",
-" ...KKKK@@@@K0@@@@@@@@@....   ",
-".....KKKKKKKKK@@@KKKKK.....   ",
-" .........................    ",
+"              ........          ",
+"           ...KKKKKKKK..        ",
+"         ..KKKKKKKKKKKKK.       ",
+"   ..   .KKKKKK000KKKKLKK.      ",
+"  .KK. .KKKKK0.....0KKK000.     ",
+"   .. .KK@@KK@0.MM.0KK0.M.0.    ",
+"      .@@@@KKKK0000KKKK000.  .  ",
+"    ..@@@@@@@KKKKKKK@K@@@.  .@. ",
+"   .@@@@@@@@@@KKKK@KKKKKK. .K.  ",
+"  .@@@@@@@@0@@KKK@@@KK@@KK. .   ",
+" .K@00@@@@000@@KK@@@@K@@KKK.    ",
+" .KK@@@@@@@KK@@@@@@@@@@@KKKK.   ",
+"  .KKK@@@@@@@00@@@00@@@@0@K@.   ",
+"  ...KKKK@@@@K0@@@@@@@@@....    ",
+" .....KKKKKKKKK@@@KKKKK.....    ",
+"  .........................     ",
 };
 
-char combat_redBlob[30][128] =
+char combat_redBlob[30][127] =
 {
-"             ........         ",
-"          ...RRRRRRRR..       ",
-"        ..RRRRRRRRRMMMR.      ",
-"  ..   .RRRRRR000RRRMRRR.     ",
-" .MM. .RRRRR0.....0RRR000.    ",
-"  .. .MRLLRRL0.MM.0RR0.M.0.   ",
-"     .LLLLRRRR0000RRRR000.  . ",
-"   ..LLL0L0LRMMRRRRLRL0L.  .L.",
-"  .LLLLLLL0LLRMMRLRRRRRR. .M. ",
-" .LLLLLLL000LRRRLLLRRLLMM. .  ",
-".ML000LLL000LLRRLLLLRLLMMM.   ",
-".MRLLLL0LLRR0LLLL0LLLLLRMMM.  ",
-" .MMRLL00000000LL000LLL00ML.  ",
-" ...MMRRL00LR00LLLL0LLL....   ",
-".....MMMMMMRRRLLLRRRRR.....   ",
-" .........................    ",
+"              ........          ",
+"           ...RRRRRRRR..        ",
+"         ..RRRRRRRRRMMMR.       ",
+"   ..   .RRRRRR000RRRMRRR.      ",
+"  .MM. .RRRRR0.....0RRR000.     ",
+"   .. .MRLLRRL0.MM.0RR0.M.0.    ",
+"      .LLLLRRRR0000RRRR000.  .  ",
+"    ..LLL0L0LRMMRRRRLRL0L.  .L. ",
+"   .LLLLLLL0LLRMMRLRRRRRR. .M.  ",
+"  .LLLLLLL000LRRRLLLRRLLMM. .   ",
+" .ML000LLL000LLRRLLLLRLLMMM.    ",
+" .MRLLLL0LLRR0LLLL0LLLLLRMMM.   ",
+"  .MMRLL00000000LL000LLL00ML.   ",
+"  ...MMRRL00LR00LLLL0LLL....    ",
+" .....MMMMMMRRRLLLRRRRR.....    ",
+"  .........................     ",
 };
 
-char combat_cursArmor[30][128] =
+char combat_cursArmor[30][127] =
 {
 "                                          		 WWWWWWWG",
 "                                                       WWWGLGWWWWG",
@@ -76,7 +80,7 @@ char combat_cursArmor[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_CGuy[30][128] =
+char combat_CGuy[30][127] =
 {
 "  	                                            WWWWWWWWWWWWWWW",
 "                                             WW###WWWWWWWWW###WW",
@@ -102,7 +106,7 @@ char combat_CGuy[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_BChicken[30][128] =
+char combat_BChicken[30][127] =
 {
 "                                           #WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW#",
 "                                          #WWWWWW_##_WWWWWWWWWWWWW_##_WWWWW#",
@@ -131,7 +135,7 @@ char combat_BChicken[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_Cyclops[30][128] =
+char combat_Cyclops[30][127] =
 {
 "                                                     #############",
 "                                                   ##################",
@@ -161,7 +165,7 @@ char combat_Cyclops[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_Noname[30][128] =
+char combat_Noname[30][127] =
 {
 "                                                     WWWWWNNNWWWWWWW",
 "                                                   WWWWOOOOOOOOOOOWWWW",
@@ -188,7 +192,7 @@ char combat_Noname[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_AlienV[30][128] =
+char combat_AlienV[30][127] =
 {
 "                 ##########                                                                ##########",
 "                   ##########                         ##########                        ##########",
@@ -211,7 +215,7 @@ char combat_AlienV[30][128] =
 "                                          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 };
 
-char combat_BigO[30][128] =
+char combat_BigO[30][127] =
 {
 "                                     ||                   ######                  ||",
 "                                      ||            ##############               ||",

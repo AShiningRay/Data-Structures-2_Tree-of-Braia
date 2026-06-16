@@ -184,25 +184,25 @@ unsigned char enterArea(char *areaName)
                 {
                     case '`': case ':': case ';': case '.': case ' ':
                     {
-                        if(encounterChance >= 87 && areaIndex != 0) // Area 0 is the hub. Shouldn't have enemy encounters
-                            {
-                                limitFPS(0);
-                                enemyEncounter(levelCap-9,levelCap);
-                                playBGM(areaName); 
-                            }
-                            // TODO: Check if there's any special characters close to the party, like a wall, an entrance, etc
-                            char tmpchar = Areas[areaIndex][playerY][playerX];
-                            Areas[areaIndex][playerY][playerX] = Areas[areaIndex][playerY+dirY][playerX+dirX];
-                            Areas[areaIndex][playerY+dirY][playerX+dirX] = tmpchar;
-                            playerX += dirX;
-                            playerY += dirY;
-                            moved = true;
-                            do
-                            {
-                                navIndexTmp = rand() % 3;
-                            } while (navIndexTmp == navIndex);
-                            navIndex = navIndexTmp;
-                            limitFPS(50);
+                        if(encounterChance >= 92 && areaIndex != 0) // Area 0 is the hub. Shouldn't have enemy encounters
+                        {
+                            limitFPS(0);
+                            enemyEncounter(levelCap-9,levelCap);
+                            playBGM(areaName); 
+                        }
+                        // TODO: Check if there's any special characters close to the party, like a wall, an entrance, etc
+                        char tmpchar = Areas[areaIndex][playerY][playerX];
+                        Areas[areaIndex][playerY][playerX] = Areas[areaIndex][playerY+dirY][playerX+dirX];
+                        Areas[areaIndex][playerY+dirY][playerX+dirX] = tmpchar;
+                        playerX += dirX;
+                        playerY += dirY;
+                        moved = true;
+                        do
+                        {
+                            navIndexTmp = rand() % 3;
+                        } while (navIndexTmp == navIndex);
+                        navIndex = navIndexTmp;
+                        limitFPS(50);
                     } break;
                     case 'G': // Gate
                     {
