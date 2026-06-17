@@ -23,8 +23,9 @@ void drawSizeRequestScreen(struct winsize *ws);
 
 int main()
 {
-    printf("\x1B[0m");
-    SetColor(WHITE);
+    restoreConsoleText();
+    textcolor(WHITE);
+    textbackground(BLACK);
     initFPSLimit();
     if(initAudioEngine() == -1) { return -1; }
 #ifdef __linux__
@@ -62,9 +63,9 @@ initKeyboard();
     keybd_event ( VK_MENU, 0x38, KEYEVENTF_KEYUP, 0 ); // Forces the console to Full Screen Mode.
 #endif
 
-    playBGM("Intro");
+    playBGM("IntroScreen");
     showLogo();
-    stopBGM("Intro");
+    stopBGM("IntroScreen");
 
     initEnemies();
     //printf("Enemies Initialized...\n");
@@ -74,13 +75,20 @@ initKeyboard();
     //printf("Navigation Areas Initialized...\n");
 
     playBGM("NameInput");
-    insertCharName(0);
+    insertCharName(0, &ws);
 
     // Clear inputs from the logo "START GAME" prompt
     if(GetAsyncKeyState(VK_ENTER) != 0){}
     if(GetAsyncKeyState(VK_BACKSPACE) != 0){}
 
     stopBGM("NameInput");
+    
+    // Story Intro
+    playBGM("StoryIntro");
+    showIntro();
+    stopBGM("StoryIntro");
+
+    // Gameplay
     unsigned char curArea = 0; // TODO: Loading saved data should alter this index before diving below (i don't really think this will have more than 256 areas)
     while(curArea != ENDING) 
     {
@@ -88,7 +96,8 @@ initKeyboard();
         curArea = enterArea(AreaNames[curArea]);
     }
     
-    ending();
+    // Game finished?
+    showEnding();
 
     return 0;
 }

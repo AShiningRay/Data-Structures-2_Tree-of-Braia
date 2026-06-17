@@ -196,7 +196,7 @@ void print_skillTree(BinTree* root, int spacing)
     print_skillTree(&(*root)->right, spacing);
     // Print current node after space
     // count
-    if((*root)->isLearned == true) SetColor(LIGHTGREEN);
+    if((*root)->isLearned == true) textcolor(LIGHTGREEN);
 
     for (int i = 7; i < spacing; i++)
         {
@@ -204,7 +204,7 @@ void print_skillTree(BinTree* root, int spacing)
             else printf("-");
         }
     printf("(%s)\n\n", (*root)->skillName);
-    SetColor(WHITE);
+    textcolor(WHITE);
 
     // Process left child
     print_skillTree(&(*root)->left, spacing);

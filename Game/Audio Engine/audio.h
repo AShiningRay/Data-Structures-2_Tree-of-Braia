@@ -4,7 +4,7 @@
 #endif
 
 #define NUM_SFX 25 // Current number of SFX files
-#define NUM_BGM 8 // Current number of BGM files
+#define NUM_BGM 9 // Current number of BGM files
 
 #include "miniaudio.h"
 
@@ -44,7 +44,7 @@ char FXPaths[NUM_SFX][128] =
 
 char BGMPaths[NUM_BGM][128] = 
 {
-  "Audio Engine/BGM/Intro.mp3",
+  "Audio Engine/BGM/IntroScreen.mp3",
   "Audio Engine/BGM/NameInput.mp3",
   "Audio Engine/BGM/HubTown.mp3",
   "Audio Engine/BGM/Area1.mp3",
@@ -52,6 +52,7 @@ char BGMPaths[NUM_BGM][128] =
   "Audio Engine/BGM/Area3.mp3",
   "Audio Engine/BGM/EnemyFight1.mp3",
   "Audio Engine/BGM/BossFight1.mp3",
+  "Audio Engine/BGM/StoryIntro.mp3",
 };
 
 int initAudioEngine() 

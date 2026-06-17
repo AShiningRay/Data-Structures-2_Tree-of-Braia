@@ -44,7 +44,7 @@ void printCenteredScreen(int indent, const char *msg) {
             printf("Could not get window size...");
             exit(1);
         }
-        // Center the window vertically
+        // Center the window horizontally
         if(ws.ws_row > 127)
             indent = (ws.ws_row / 2) - 64;
 #endif // TIOCGWINSZ

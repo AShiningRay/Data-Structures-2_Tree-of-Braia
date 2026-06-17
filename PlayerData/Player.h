@@ -44,24 +44,34 @@ struct playerChar
 
 void createPlayer(unsigned char charIndex, char charName[MAX_NAME_SIZE]);
 
-void insertCharName(unsigned char charIndex)
+void insertCharName(unsigned char charIndex, struct winsize *ws)
 {
     char ch;
     char name[MAX_NAME_SIZE];
     unsigned char index = 0;
     clearConsoleScreen();
+    useBoldConsoleText();
+    useItalicConsoleText();
     
-    printf("\n\n\n\t\t\t|      BEFORE STARTING THE GAME...       |");
-    printf("\n\t\t\t|  PLEASE INSERT YOUR CHARACTER'S NAME:  |");
-    printf("\n\t\t\t\t|------------------------|");
-    printf("\n\t\t\t\t|                        |");
-    printf("\n\t\t\t\t|------------------------|");
-    limitFPS(50);
-    printf("\x1B[1A");
-    printf("\x1B[25D");
+    if(ws->ws_row > 6)
+        moveCursorDownBy(ws->ws_row / 2 - 3);
+
+    int indent = (ws->ws_col > 34) ? (ws->ws_col / 2 - 17) : 0;
+    
+    printCenteredScreen(indent, "┌───────────────────────────────┐\n");
+    if (charIndex == 0)
+        printCenteredScreen(indent, "│ WHAT'S YOUR CHARACTER'S NAME? │\n");
+    else
+        printCenteredScreen(indent, "│ WHAT'S THAT CHARACTER'S NAME? │\n");
+    printCenteredScreen(indent, "├───────────────────────────────┤\n");
+    printCenteredScreen(indent, "└────────┬─────────────┬────────┘\n");
+    printCenteredScreen(indent+9, "│             │\n");
+    printCenteredScreen(indent+9, "└─────────────┘");
+    moveCursorUpBy(1);
+    moveCursorLeftBy(14);
 
     // Read input character by character
-    while (index < sizeof(name) - 2)
+    while (true)
     {
         ch = getchar();
     
@@ -71,17 +81,34 @@ void insertCharName(unsigned char charIndex)
             continue;
         }
 
-        printf("%c", ch);
-
-        // Check if we read a newline or EOF
+        // Check if we read a newline or EOF, and finish reading the name.
         if (ch == '\n' || ch == EOF)
         {
-            break; // Exit the loop on newline or EOF
+            break;
         }
 
-        // Store the character in the buffer if not a newline
-        name[index++] = ch;
+        // Backspace? Clear last char
+        if((ch == '\b' || ch == 127) && index > 0)
+        {
+            moveCursorLeftBy(1);
+            name[--index] = ' ';
+            printf(" ");
+            moveCursorLeftBy(1);
+        }
+        // Store the character in the buffer if it's not a backspace, and we
+        // aren't at the end of the buffer.
+        else if (ch > 31 && ch < 127 && index < sizeof(name) - 2)
+        {
+            printf("%c", ch);
+            name[index++] = ch;
+        }
     }
+
+    textcolor(WHITE);
+    textbackground(BLACK);
+    restoreConsoleText();
+
+    limitFPS(5000);
 
     name[index] = '\0'; // Null-terminate the string
     createPlayer(charIndex, name);

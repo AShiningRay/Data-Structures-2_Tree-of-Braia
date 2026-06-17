@@ -245,7 +245,7 @@ void renderEnemyCharacters(short int charIndex[3], bool isBoss[3], int animTime)
         enemyChanged = false; // Enemies have had their changes applied already, so set this flag as false until needed
 
         for(unsigned char y = 0; y < BG_YSIZE - FIGHTSCREEN_Y_PADDING - enemySpriteRows[charIndex[enemiesInEncounter-1]]; y++) { moveCursorDownBy(1); }
-        SetColor(WHITE);
+        textcolor(WHITE);
 
         allEnemiesKilled = true;
         for(unsigned char enemyIndex = 0; enemyIndex < enemiesInEncounter; enemyIndex++) 
@@ -430,7 +430,7 @@ void renderArea1BG(int animTime)
 void renderEnemyCombatStat()
 {
     char lifepercent; // enemy life bar percentage calculus.
-    SetColor(WHITE);
+    textcolor(WHITE);
     useBoldConsoleText();
     printf("\t\t\t┌────────────────────────────────────────────────────────────────────────────────┐\n");
 
@@ -449,10 +449,10 @@ void renderEnemyCombatStat()
 
         if(Enemy[enemyIndex].current_HP <= 0) 
         { 
-            SetColor(DARKGRAY);
+            textcolor(DARKGRAY);
             useStrikeThroughConsoleText();
         }
-        else { SetColor(YELLOW); }
+        else { textcolor(YELLOW); }
         printf("%s", Enemy[enemyIndex].name);
 
         restoreConsoleText();
@@ -460,7 +460,7 @@ void renderEnemyCombatStat()
 
         for(char j = 0; j < (26 - strlen(Enemy[enemyIndex].name))/2; j++) { putchar(' '); }
         if(strlen(Enemy[enemyIndex].name) % 2 == 1) { putchar(' '); } // Correction for when names aren't even in length
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
 
         // If we have two enemies, the center area of the life bars has to be empty (there's only a left and right enemy)
@@ -523,7 +523,7 @@ unsigned char selectEnemy()
     while(true) 
     {
         renderMainPartyStats(COMBAT_ACTIONS, "");
-        SetColor(WHITE);
+        textcolor(WHITE);
         useBoldConsoleText();
         printf("\t\t\t┌────────────────────────────────SELECT YOUR FOE─────────────────────────────────┐\n");
 
@@ -546,7 +546,7 @@ unsigned char selectEnemy()
             
             if (selIndex == enemyIndex) 
             { 
-                SetColor(YELLOW);
+                textcolor(YELLOW);
                 printf(" ┼─ "); 
                 useUnderlineConsoleText();
             }
@@ -555,7 +555,7 @@ unsigned char selectEnemy()
             
             if(Enemy[enemyIndex].current_HP <= 0) 
             { 
-                SetColor(DARKGRAY); 
+                textcolor(DARKGRAY); 
                 useStrikeThroughConsoleText(); 
             }
             printf("%s", Enemy[enemyIndex].name); 
@@ -565,7 +565,7 @@ unsigned char selectEnemy()
 
             for(unsigned char j = 0; j < (22 - strlen(Enemy[enemyIndex].name))/2; j++) { putchar(' '); }
             if(strlen(Enemy[enemyIndex].name) % 2 == 1) { putchar(' '); } // Correction for when names aren't even in length
-            SetColor(WHITE);
+            textcolor(WHITE);
             printf("│");
 
             if(enemiesInEncounter % 2 == 0 && enemyIndex == 0 || enemiesInEncounter == 1) 
@@ -633,36 +633,36 @@ unsigned char renderPlayerCombatEnemyMenu(bool runEnabled)
     {
         renderMainPartyStats(COMBAT_ACTIONS, "");
 
-        SetColor(WHITE);
+        textcolor(WHITE);
         useBoldConsoleText();
         printf("\t\t\t┌────────────────────────────────────────────────────────────────────────────────┐\n");
         printf("\t\t\t┌──────────────────────────────SELECT YOUR COMMAND───────────────────────────────┐\n");
         printf("\t\t\t│ ");
-        if(atksel) { SetColor(LIGHTGREEN); }
+        if(atksel) { textcolor(LIGHTGREEN); }
         printf("%s", (atksel ? "┼─" : "  "));
         printf(" BASIC ATTACK   ");
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│ ");
-        if(spellsel) { SetColor(LIGHTBLUE); }
+        if(spellsel) { textcolor(LIGHTBLUE); }
         printf("%s", (spellsel ? "┼─" : "  "));
         printf(" MAGIC SPELL   ");
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│ ");
-        if(actsel) { SetColor(YELLOW); }
+        if(actsel) { textcolor(YELLOW); }
         printf("%s", (actsel ? "┼─" : "  "));
         printf(" CLASS SKILL   ");
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│ ");
-        if(undosel) { SetColor(LIGHTCYAN); }
-        else if(curCharacter == 0) { SetColor(DARKGRAY); }
+        if(undosel) { textcolor(LIGHTCYAN); }
+        else if(curCharacter == 0) { textcolor(DARKGRAY); }
         printf("%s", (undosel ? "┼─" : "  "));
         printf(" UNDO   ");
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
-        if(runsel) { SetColor(BROWN); }
+        if(runsel) { textcolor(BROWN); }
         printf("%s", (runsel ? "┼─" : "  "));
         printf(" FLEE   ");
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
         printf("\n\t\t\t└────────────────────────────────────────────────────────────────────────────────┘\n");
         restoreConsoleText();
@@ -800,7 +800,7 @@ unsigned char renderPlayerCombatEnemyMenu(bool runEnabled)
 void renderMainPartyStats(bool showCombatActions, char *combatText)
 {
     char charAt = 0;
-    SetColor(WHITE);
+    textcolor(WHITE);
     useBoldConsoleText();
 
     if(showCombatActions) 
@@ -818,7 +818,7 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
     // Names
     for(unsigned char i = 0; i < MAX_PARTY_SIZE; i++) 
     {
-        SetColor(WHITE);
+        textcolor(WHITE);
         if(i == 0) { printf("%s\t│ ", (showCombatActions ? "\t\t" : "\t ")); }
         if(i < partySize) 
         {
@@ -831,14 +831,14 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
             for(unsigned char i = 14 - (charAt+1); i > 0; i--) { printf(" "); }
         }
         else { printf(" ──────────────"); }
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf(" │");
     }
     printf(" KEY ACTIONS │");
     
     printf("\n");
 
-    SetColor(WHITE);
+    textcolor(WHITE);
     printf("%s\t├───────────────┼────────────────┼────────────────┼────────────────┼─────────────┤\n", (showCombatActions ? "\t\t" : "\t "));
 
     // HP Stats
@@ -846,10 +846,10 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
     {
         if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
 
-        SetColor(LIGHTGREEN);
+        textcolor(LIGHTGREEN);
         if(i < partySize)  { printf(" HP: %4d/%4d ",character[i].current_HP, character[i].max_HP); }
         else { printf(" ────────────── "); }
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
     }
     printf(" WASD - MOVE │");
@@ -860,10 +860,10 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
     {
         if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
         
-        SetColor(LIGHTBLUE);
+        textcolor(LIGHTBLUE);
         if(i < partySize)  { printf(" MP: %4d/%4d ",character[i].current_MP, character[i].max_MP); }
         else { printf(" ────────────── "); }
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
     }
     if(showCombatActions) { printf(" ENTER - ACT │"); }
@@ -875,10 +875,10 @@ void renderMainPartyStats(bool showCombatActions, char *combatText)
     {
         if(i == 0) { printf("%s\t│", (showCombatActions ? "\t\t" : "\t ")); }
         
-        SetColor(YELLOW);
+        textcolor(YELLOW);
         if(i < partySize)  { printf(" AP: %3d/%d   ", 0, 100); } // character[0].current_AP, character[0].max_AP); // AP not implemented yetcharacter[i].current_AP, character[i].max_AP); }
         else { printf(" ────────────── "); }
-        SetColor(WHITE);
+        textcolor(WHITE);
         printf("│");
     }
     if(showCombatActions) { printf(" BKSP - UNDO │"); }
@@ -898,7 +898,7 @@ unsigned char renderPlayerMagicSpellMenu()
     while(true)
     {
         renderMainPartyStats(COMBAT_ACTIONS, "");
-        SetColor(WHITE);
+        textcolor(WHITE);
         useBoldConsoleText();
         printf("\t\t\t┌────────────────────────────────SELECT THE SPELL────────────────────────────────┐\n");
 
@@ -917,9 +917,9 @@ unsigned char renderPlayerMagicSpellMenu()
                 if(spellsel == spellIdx) 
                 {
                     if (character[0].current_MP < findSkillMPUsage(character[0].magtree, availableSpells[character[0].spellIndices[spellIdx]]))
-                        SetColor(DARKGRAY);
+                        textcolor(DARKGRAY);
                     else
-                        SetColor(LIGHTGREEN);
+                        textcolor(LIGHTGREEN);
                     printf(" ┼─");
                     useUnderlineConsoleText();
                 }
@@ -940,7 +940,7 @@ unsigned char renderPlayerMagicSpellMenu()
                 }
             }
         
-            SetColor(WHITE);
+            textcolor(WHITE);
             printf("│");
         }
         

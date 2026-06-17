@@ -112,6 +112,63 @@ void showLogo()
         }
 }
 
+void showIntro()
+{
+    unsigned short int ypos = 0;
+    unsigned char colorIdx = 0;
+    unsigned char colors[] = {YELLOW, WHITE, DARKGRAY};
+    useBoldConsoleText();
+    textcolor(colors[colorIdx]);
+    while(true)
+    {
+        clearConsoleScreen();
+        moveCursorDownBy(12);
+
+        printf("┌");
+        for(unsigned char i = 0; i < MIN_XSIZE - 2; i++)
+            printf("─");
+        printf("┐\n");
+
+        for(unsigned short int y = ypos; y < MIN_YSIZE+ypos-24; y++)
+        {
+            unsigned char xmax = strlen(introStory[y]);
+
+            for(unsigned char x = 0; x < xmax; x++)
+            {
+                putchar(introStory[y][x]);   
+            }
+            putchar('\n');
+        }
+
+        printf("└");
+        for(unsigned char i = 0; i < MIN_XSIZE - 2; i++)
+            printf("─");
+        printf("┘\n");
+
+        if (ypos < sizeof(introStory) / 128 - 34) { ypos++; }
+        else
+        {
+            limitFPS(500);
+            textcolor(colors[colorIdx++]);
+            if(colorIdx > 3)
+            {
+                clearConsoleScreen();
+                break;
+            }
+        }
+        
+        // Allow it to be skipped with enter
+        if(GetAsyncKeyState (VK_ENTER) != 0)
+            ypos = sizeof(introStory) / 128 - 34;
+
+        limitFPS(250);
+    }
+    limitFPS(2000);
+    restoreConsoleText();
+    textcolor(WHITE);
+    textbackground(BLACK);
+}
+
 unsigned char enterArea(char *areaName) 
 {
     bool moved = false;    
@@ -209,9 +266,9 @@ unsigned char enterArea(char *areaName)
                         if(character[0].key) { /* TODO */ }
                         else
                         {
-                            SetColor(4);
+                            textcolor(RED);
                             printf("\nYou have not found the key yet!");
-                            SetColor(15);
+                            textcolor(WHITE);
                             limitFPS(1500);
                         }
                     } break;
@@ -494,9 +551,9 @@ bool drawSelectMenu()
             if(yes)
             {
                 printf("\t [ ");
-                SetColor(12);
+                textcolor(GREEN);
                 printf(">> ");
-                SetColor(15);
+                textcolor(WHITE);
                 printf("Yes      No ]");
                 printf("\033[20D");
             }
@@ -504,9 +561,9 @@ bool drawSelectMenu()
             else
             {
                 printf("\t [    Yes   ");
-                SetColor(12);
+                textcolor(GREEN);
                 printf(">> ");
-                SetColor(15);
+                textcolor(WHITE);
                 printf("No ]");
                 printf("\033[20D");
             }
@@ -549,7 +606,7 @@ bool drawSelectMenu()
     return 0;
 }
 
-void ending()
+void showEnding()
 {
     unsigned char ymax = 1;
     while(ymax !=50)
@@ -591,13 +648,13 @@ void renderAreaNavigation(unsigned char areaIndex, unsigned char navIndex, unsig
         // Draw the mini-map at the side
         if(y == (NAVAREA_YSIZE/2) - 6) 
         { 
-            printf(" ┌──────"); 
+            printf(" ┌───── "); 
             useBoldConsoleText();
-            SetColor(9);
+            textcolor(DARKGRAY);
             printf("MINIMAP");
-            SetColor(15);
+            textcolor(WHITE);
             restoreConsoleText();
-            printf("──────┐");
+            printf(" ─────┐");
         }
 
         else if(y > (NAVAREA_YSIZE/2) - 6 && y < (NAVAREA_YSIZE/2) + 6)
