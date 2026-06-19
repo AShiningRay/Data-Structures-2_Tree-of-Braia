@@ -4,7 +4,7 @@
 #endif
 
 #define NUM_SFX 25 // Current number of SFX files
-#define NUM_BGM 9 // Current number of BGM files
+#define NUM_BGM 11 // Current number of BGM files
 
 #include "miniaudio.h"
 
@@ -13,7 +13,7 @@ ma_engine audioengine;
 ma_sound soundFX[NUM_SFX];
 ma_sound soundBGM[NUM_BGM];
 
-char FXPaths[NUM_SFX][128] = 
+char FXPaths[NUM_SFX][64] = 
 {
   "Audio Engine/SFX/OpenMenu.mp3",
   "Audio Engine/SFX/CombatCursorMove.mp3",
@@ -33,23 +33,25 @@ char FXPaths[NUM_SFX][128] =
   "Audio Engine/SFX/CloseGame.mp3",
   "Audio Engine/SFX/PlayerHit.mp3",
   "Audio Engine/SFX/OpenChest.mp3",
-  "Audio Engine/SFX/FootStep.mp3",
   "Audio Engine/SFX/HealSpot.mp3",
   "Audio Engine/SFX/Speech.mp3",
   "Audio Engine/SFX/BossDefeated.mp3",
   "Audio Engine/SFX/EnemyDefeated.mp3",
   "Audio Engine/SFX/EnemyEncounter.mp3",
   "Audio Engine/SFX/PartyEscaped.mp3",
+  "Audio Engine/SFX/InnStay.mp3",
 };
 
-char BGMPaths[NUM_BGM][128] = 
+char BGMPaths[NUM_BGM][64] = 
 {
   "Audio Engine/BGM/IntroScreen.mp3",
-  "Audio Engine/BGM/NameInput.mp3",
+  "Audio Engine/BGM/Unease.mp3",
   "Audio Engine/BGM/HubTown.mp3",
   "Audio Engine/BGM/Area1.mp3",
   "Audio Engine/BGM/Area2.mp3",
   "Audio Engine/BGM/Area3.mp3",
+  "Audio Engine/BGM/Area4.mp3",
+  "Audio Engine/BGM/AreaFinal.mp3",
   "Audio Engine/BGM/EnemyFight1.mp3",
   "Audio Engine/BGM/BossFight1.mp3",
   "Audio Engine/BGM/StoryIntro.mp3",

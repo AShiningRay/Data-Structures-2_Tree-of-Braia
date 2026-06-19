@@ -108,8 +108,6 @@ void insertCharName(unsigned char charIndex, struct winsize *ws)
     textbackground(BLACK);
     restoreConsoleText();
 
-    limitFPS(5000);
-
     name[index] = '\0'; // Null-terminate the string
     createPlayer(charIndex, name);
 }

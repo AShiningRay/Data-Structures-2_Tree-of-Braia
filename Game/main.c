@@ -15,6 +15,7 @@
 #include "Console_Colors/atari.h"
 //#include "../Combat/Combat.h"
 #include "../Maps/Maps.h"
+#include <time.h>
 
 #ifdef __linux__
 void drawSizeRequestScreen(struct winsize *ws);
@@ -74,19 +75,20 @@ initKeyboard();
     initNavAreas();
     //printf("Navigation Areas Initialized...\n");
 
-    playBGM("NameInput");
+    // Name Insert and Story Intro
+    playBGM("StoryIntro");
     insertCharName(0, &ws);
 
     // Clear inputs from the logo "START GAME" prompt
     if(GetAsyncKeyState(VK_ENTER) != 0){}
     if(GetAsyncKeyState(VK_BACKSPACE) != 0){}
-
-    stopBGM("NameInput");
     
-    // Story Intro
-    playBGM("StoryIntro");
     showIntro();
     stopBGM("StoryIntro");
+
+    // Use current time as a seed for random number generation, 
+    // which is simpler than using hardware generators.
+    srand((unsigned int)time(NULL));
 
     // Gameplay
     unsigned char curArea = 0; // TODO: Loading saved data should alter this index before diving below (i don't really think this will have more than 256 areas)

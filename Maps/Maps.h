@@ -4,6 +4,7 @@
 #include "../TAD_DialogHash/DialogsNPC.h"
 #include "Minimaps.h"
 #include "Area1_NavigationScreens.h"
+#include "Cutscenes.h"
 
 void talkToMerchant();
 void talkToNPC2();
@@ -227,7 +228,6 @@ unsigned char enterArea(char *areaName)
         {
             if(GetAsyncKeyState (VK_W) != 0)
             {
-                playBGM("FootStep");
                 encounterChance = rand() % 100;
 
                 char dirY = 0, dirX = 0;
@@ -354,7 +354,6 @@ unsigned char enterArea(char *areaName)
 
             else if(GetAsyncKeyState (VK_S) != 0)
             {
-                playBGM("FootStep");
                 encounterChance = rand() % 100;
 
                 char dirY = 0, dirX = 0;
@@ -394,7 +393,6 @@ unsigned char enterArea(char *areaName)
 
             else if(GetAsyncKeyState (VK_A) != 0)
             {
-                playBGM("FootStep");
                 encounterChance = rand() % 100;
 
                 char dirY = 0, dirX = 0;
@@ -416,8 +414,6 @@ unsigned char enterArea(char *areaName)
 
             else if(GetAsyncKeyState (VK_D) != 0)
             {
-                playBGM("FootStep");
-
                 char dirY = 0, dirX = 0;
                 if(Areas[areaIndex][playerY][playerX] == '^')      { Areas[areaIndex][playerY][playerX] = '>'; dirX = 1;  }
                 else if(Areas[areaIndex][playerY][playerX] == '>') { Areas[areaIndex][playerY][playerX] = 'v'; dirY = 1;  }
